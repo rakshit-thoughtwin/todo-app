@@ -1,0 +1,101 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Home Page</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="{% static 'css/todo.css' %}">
+</head>
+
+<body>
+    <nav class="navbar">
+	    <p class="navbar-brand">TODO Application By Rakshit</p>
+
+        {% if user.is_authenticated %}
+            <p id="welcome-user">Welcome, {{ request.user.username }}</p>
+
+            <ul>
+                <li class="navbar-item">
+                    <a class="link" href="{% url 'logout' %}">Logout</a>
+                </li>
+            </ul>
+        {% else %}
+            <ul>
+                {% if request.path == '/Signup/' %}
+                    <li>
+                        <a class="link" href="{% url 'login' %}">Login</a>
+                    </li>
+                {% elif request.path == '/login/' %}
+                    <li>
+                        <a class="link" href="{% url 'signup' %}">Signup</a>
+                    </li>
+                {% endif %}
+            </ul>
+        {% endif %}
+	</nav>
+    <div class="container">
+        <div class="container-section">
+            <form action="{% url 'home' %}" method="post" class="create-todo-form">
+                {% csrf_token %}
+    
+                <input type="text" name="new-todo" id="new-todo" required>
+                <button type="submit">Add Todo</button>
+            </form>
+        </div>
+    
+        {% for i in todos %}
+        <div class="todo-container">
+            <div class="todos">
+                <p>{{ i.name }}</p>
+                <ul class="crud-buttons">
+                    <li>
+                        <button id="edit-todo" data-toggle="modal" data-target="#editTodoModal_{{ i.id }}">Edit</button>
+    
+                        <div class="modal fade" id="editTodoModal_{{ i.id }}" tabindex="-1" role="dialog"
+                            aria-labelledby="editTodoModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editTodoModalLabel">Update Todo Item</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true" id="close-edit-modal">&times;</span>
+                                        </button>
+                                    </div>
+                                    <form action="{% url 'update_todo' i.id %}" method="post" class="edit-todo-form">
+                                        {% csrf_token %}
+                                        <div class="modal-body">
+                                            <input type="text" name="todo_{{ i.id }}" id="" value="{{ i.name }}" required
+                                                size="40">
+                                        </div>
+                                        <div class="modal-footerr">
+                                            <button type="button" class="btn btn-sm btn-secondary"
+                                                data-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-sm btn-primary"
+                                                id="edit-todo-submit">Submit</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li><a href="{% url 'complete_todo' i.id %}" id="complete-todo">Completed</a></li>
+
+                    <li><a href="{% url 'delete_todo' i.id %}" id="delete-todo">Delete</a></li>
+                </ul>
+            </div>
+        </div>
+        {% endfor %}
+    
+
+  <!-- Below jquery javascript is required for modal functionalities -->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script> -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>
